@@ -39,6 +39,16 @@ var server = net.createServer
 				socketToClient.write(dataToSend);
 			}
 		);
+
+		socketToClient.on
+		(
+			"error",
+			error =>
+			{
+				console.log("Error: " + error);
+			}
+		);
+
 	}
 );
 
