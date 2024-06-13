@@ -1,15 +1,20 @@
 
 var net = require("node:net");
 
-console.log("Socket Test - Echo Server");
+console.log("Socket Test - Reversing Echo Server");
 
 console.log
 (
 	"This program creates a server "
 	+ "that waits for incoming client connections, "
 	+ "logs their content, "
-	+ "and echoes that content back to the client."
+	+ "reverses the order of the content string, "
+	+ "and echoes that back to the client."
 );
+
+var commandLineArguments = process.argv;
+
+console.log("Arguments: " + commandLineArguments.slice(2).join(", ") );
 
 var server = net.createServer
 (
@@ -20,17 +25,29 @@ var server = net.createServer
 		socketToClient.on
 		(
 			"data",
-			dataReceived =>
+			dataReceivedAsBuffer =>
 			{
+				var dataReceived = dataReceivedAsBuffer.toString();
 				console.log("Received: " + dataReceived);
-				console.log("Sending: " + dataReceived);
-				socketToClient.write(dataReceived);
+				var dataToSend = "";
+				for (var i = 0; i < dataReceived.length; i++)
+				{
+					var dataChar = dataReceived[i];
+					dataToSend = dataChar + dataToSend;
+				}
+				console.log("Sending: " + dataToSend);
+				socketToClient.write(dataToSend);
 			}
 		);
 	}
 );
 
-var portToListenOn = 8080;
+var argPort = commandLineArguments.find(x => x.startsWith("--port=") );
+var portToListenOn =
+	argPort == null
+	? 8080
+	: parseInt(argPort.split("=")[1]);
+
 console.log("Listening on port " + portToListenOn + "...");
 
 server.listen(portToListenOn);
